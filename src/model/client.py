@@ -3,8 +3,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DateTime, ForeignKey
 from datetime import datetime
 
-from src.model.account import AccountModel
-
 
 class ClientModel(BaseModel):
     __tablename__ = 'clients'

@@ -13,6 +13,8 @@ sqlalchemy = "^2.0.36"
 pydantic = "^2.10.1"
 alembic = "^1.14.0"
 asyncpg = "^0.30.0"
+pydantic-settings = "^2.6.1"
+pyjwt = "*"
 
 
 [build-system]
