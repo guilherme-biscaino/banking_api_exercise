@@ -16,19 +16,12 @@ class TransactionsModel(BaseModel):
     balance: Mapped[Decimal] = mapped_column(DECIMAL, nullable=False)
 
     from_account_id: Mapped[int] = mapped_column(
-         Integer, ForeignKey("accounts.pk_id")
+         Integer, ForeignKey("accounts.pk_id", ondelete="CASCADE"), nullable=True
      )
     to_account_id: Mapped[int] = mapped_column(
-         Integer, ForeignKey("accounts.pk_id")
+         Integer, ForeignKey("accounts.pk_id", ondelete="CASCADE"), nullable=True
     )
 
-    from_account = relationship("AccountModel", foreign_keys="[TransactionsModel.from_account_id]")
-    to_account = relationship("AccountModel", foreign_keys="[TransactionsModel.to_account_id]")
+    from_account = relationship("AccountModel", foreign_keys="[TransactionsModel.from_account_id]", cascade="all, delete")
+    to_account = relationship("AccountModel", foreign_keys="[TransactionsModel.to_account_id]", passive_deletes="True")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-
-    # from_account_id: Mapped[UUID4] = mapped_column(
-    #     Integer, nullable=False
-    # )
-    # to_account_id: Mapped[UUID4] = mapped_column(
-    #     Integer, nullable=False
-    # )

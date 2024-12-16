@@ -41,6 +41,10 @@ async def get_all_accounts(
 @router.delete("/delete")
 async def delete_account(
     client_id: AccountSchemaIn,
+    db_session: DatabaseDependency,
     info=Depends(login_required)
 ):
-    pass
+    contas: AccountSchemaOut = (await db_session.execute(select(AccountModel).filter_by(id=client_id.id))).scalars().first()
+    if contas.client_id == info["user_id"]:
+        await db_session.delete(contas)
+        await db_session.commit()
