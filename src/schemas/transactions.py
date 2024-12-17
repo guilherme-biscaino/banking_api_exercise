@@ -3,7 +3,6 @@ from pydantic import Field, UUID4
 from src.contrib.schemas import BaseSchema, BaseSchemaOut
 from decimal import Decimal
 
-
 class TransactionSchema(BaseSchema):
     balance: Annotated[Decimal, Field(description="Cliente que fará a transação")]
 

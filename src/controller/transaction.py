@@ -28,9 +28,7 @@ async def account_deposit(
         **transaction_in.model_dump()
         )
     client_data = await get_account_by_secondary_id(db_session, AccountModel, transaction_out.from_account_id)
-
     if client_data.client_id == info["user_id"]:
-
         client_data.balance += transaction_out.balance
 
         await add_transaction_history(transaction_out, db_session, TransactionsModel, client_data.pk_id, client_data.pk_id)
@@ -57,12 +55,13 @@ async def account_withdraw(
     client_data = await get_account_by_secondary_id(db_session, AccountModel, transaction_out.from_account_id)
 
     if client_data.client_id == info["user_id"]:
-        client_data.balance -= transaction_out.balance
+        if client_data.balance >= transaction_in.balance:
+            client_data.balance -= transaction_out.balance
 
-        await add_transaction_history(transaction_out, db_session, TransactionsModel, client_data.pk_id, client_data.pk_id)
+            await add_transaction_history(transaction_out, db_session, TransactionsModel, client_data.pk_id, client_data.pk_id)
 
-        await db_session.commit()
-        raise HTTPException(status_code=status.HTTP_200_OK)
+            await db_session.commit()
+            raise HTTPException(status_code=status.HTTP_200_OK)
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -82,14 +81,14 @@ async def account_transfer(
     clients_data = await get_accounts_by_secondary_id(db_session, AccountModel, transaction_out.from_account_id, transaction_out.to_account_id)
 
     if clients_data[0][0].client_id == info["user_id"]:
+        if clients_data[0][0].balance >= transfer_in.balance:
+            await add_transaction_history(transaction_out, db_session, TransactionsModel, clients_data[0][0].pk_id, clients_data[1].pk_id)
 
-        await add_transaction_history(transaction_out, db_session, TransactionsModel, clients_data[0][0].pk_id, clients_data[1].pk_id)
+            clients_data[1].balance += transaction_out.balance
+            clients_data[0][0].balance -= transaction_out.balance
 
-        clients_data[1].balance += transaction_out.balance
-        clients_data[0][0].balance -= transaction_out.balance
-
-        await db_session.commit()
-        raise HTTPException(status_code=status.HTTP_200_OK)
+            await db_session.commit()
+            raise HTTPException(status_code=status.HTTP_200_OK)
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
